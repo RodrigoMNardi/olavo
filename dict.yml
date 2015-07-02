@@ -8,3 +8,12 @@
 :learned:     # Words learned using @<name>=<quote>. Mapped 1 to 1
 :learned_confirm: OK OK. I get it # Could be String or Array
 :learned_complain: Your reference does not exist
+:bad_word:
+  fuck: What did you just say?
+  cum:
+    - You kiss your mom with that mouth
+    - Watch your language!
+:random:
+  - 2+2 = 12
+  - tick tack
+  - Hi

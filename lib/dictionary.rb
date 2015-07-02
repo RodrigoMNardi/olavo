@@ -34,6 +34,11 @@ module Lib
       @dict = YAML.load_file(dict_filename)
     end
 
+    def reload
+      puts '===> Reloading Lib::Dictionary'
+      @dict = YAML.load_file(@dict_filename)
+    end
+
     def to_learn?(phrase)
       (phrase.match(/^@\p{Word}+\s*=\s*/))? true : false
     end
@@ -52,11 +57,16 @@ module Lib
     end
 
     def bad_word_quote(phrase)
-
+      return nil unless has_chapter? :bad_word
+      phrase.scan(/\p{Word}+/).each do |word|
+        next unless has_section?(:bad_word, word)
+        return read_dictionary(:bad_word, word)
+      end
+      false
     end
 
     def random_quote
-
+      read_dictionary(:random)
     end
 
     def learned_quote(phrase)

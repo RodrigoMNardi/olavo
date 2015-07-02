@@ -30,13 +30,15 @@
 
 require 'logger'
 require 'lib/dictionary'
+require 'lib/command'
 class Olavo
   attr_reader :channel, :name
   VERSION = 0.1 
 
-  def initialize(name, dict_filename)
+  def initialize(name, dict_filename, action_filename)
     @name          = name
     @dict          = Lib::Dictionary.new(dict_filename)
+    @commands      = Lib::Command.new(@name, action_filename)
     @channel       = nil
     @reload        = 0
     @logger        = Logger.new(STDOUT)
@@ -56,6 +58,15 @@ class Olavo
   end
 
   def action(phrase)
+    if @commands.has_command? phrase
+      response = @commands.cmd_exec(phrase)
+      send_message(response) if response.is_a? String
+      if response.is_a? Array
+        response.each{|message| send_message(message)}
+      end
+      return
+    end
+
     if @dict.to_learn? phrase
       send_message(@dict.learn_new_quote(phrase))
       return
@@ -73,22 +84,26 @@ class Olavo
     end
 
     bad_word = @dict.bad_word_quote(phrase)
+    if bad_word
+      send_message(bad_word)
+      return
+    end
+
+    send_message(random_quote)
   end
 
-  def reload(bot)
-    @dict = YAML.load_file(@dict_filename)
-    bot.msg @channel, access_dict(:reboot)
-    @reload += 1
-    if @reload >= 3
-      bot.msg @channel, access_dict(:reboot_try)
-      @reload = 0
+  def reload(channel, message)
+    if message.match(/^\s*reload\s*$/)
+      @dict.reload
+      @commands.reload
+      @bot.msg channel, 'Bot reloaded'
     end
   end
 
   private
 
   def random_quote
-    rand(20) == 2
+    (rand(20) == 1)? @dict.random_quote : nil
   end
 
   def send_message(message)
