@@ -1,1 +1,7 @@
 Olavo IRC bot
+
+Description
+
+Usage
+
+ruby bot.rb <bot name> <dictionary file> <action file> <irc channel> <irc server> (<port>)

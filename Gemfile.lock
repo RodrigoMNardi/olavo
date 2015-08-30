@@ -1,0 +1,20 @@
+GEM
+  specs:
+    activesupport (3.2.21)
+      i18n (~> 0.6, >= 0.6.4)
+      multi_json (~> 1.0)
+    i18n (0.6.11)
+    isaac (0.2.6)
+    multi_json (1.10.1)
+    time_difference (0.4.2)
+      activesupport
+
+PLATFORMS
+  java
+
+DEPENDENCIES
+  isaac
+  time_difference
+
+BUNDLED WITH
+   1.10.3

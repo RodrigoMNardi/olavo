@@ -44,12 +44,14 @@ module Lib
     end
 
     def is_learned?(phrase)
-      (phrase.match(/^@\p{Word}+\s+(\p{Word}+|$)/))? true : false
+      (phrase.match(/@\p{Word}+/))? true : false
     end
 
     def reference_quote(phrase)
       return nil unless has_chapter? :reference
-      phrase.scan(/\p{Word}+/).each do |word|
+      puts phrase.scan(/@\p{Word}+/).inspect
+      phrase.scan(/@\p{Word}+/).each do |word|
+        word = word.sub('@', '')
         next unless has_section?(:reference, word)
         return read_dictionary(:reference, word)
       end
@@ -71,8 +73,11 @@ module Lib
 
     def learned_quote(phrase)
       if has_chapter? :learned
-        word = phrase.match(/@\p{Word}+/)
-        return read_dictionary(word)
+        word = phrase.match(/@\p{Word}+/)[0]
+        word = word.sub('@', '')
+        puts "learned_quote(#{word})"
+        quote = read_dictionary(:learned, word)
+        return quote unless quote.nil?
       end
 
       if has_chapter? :learned_complain
@@ -82,10 +87,16 @@ module Lib
 
     def learn_new_quote(phrase)
       word, quote = phrase.split(/\s*=\s*/)
+      word = word.sub('@', '')
+      puts "Inserting #{word}"
       if has_chapter? :learned
-        @dict[:learned][word] = quote
+        if @dict[:learned].is_a? Hash
+          @dict[:learned][word] = quote
+        else
+          @dict[:learned] = {word => quote}
+        end
       else
-        @dict[:learned] = {word: quote}
+        @dict[:learned] = {word => quote}
       end
 
       File.open(@dict_filename, 'w') {|f| f.write(@dict.to_yaml)}

@@ -58,6 +58,21 @@ class Olavo
   end
 
   def action(phrase)
+    direct_events(phrase)
+    random_events(phrase)
+  end
+
+  def reload(channel, message)
+    if message.match(/^\s*reload\s*$/)
+      @dict.reload
+      @commands.reload
+      @bot.msg channel, 'Bot reloaded'
+    end
+  end
+
+  private
+
+  def direct_events(phrase)
     if @commands.has_command? phrase
       response = @commands.cmd_exec(phrase)
       send_message(response) if response.is_a? String
@@ -82,6 +97,10 @@ class Olavo
       send_message(reference)
       return
     end
+  end
+
+  def random_events(phrase)
+    return unless can_i_say?
 
     bad_word = @dict.bad_word_quote(phrase)
     if bad_word
@@ -92,21 +111,15 @@ class Olavo
     send_message(random_quote)
   end
 
-  def reload(channel, message)
-    if message.match(/^\s*reload\s*$/)
-      @dict.reload
-      @commands.reload
-      @bot.msg channel, 'Bot reloaded'
-    end
-  end
-
-  private
-
   def random_quote
-    (rand(20) == 1)? @dict.random_quote : nil
+    (can_i_say?)? @dict.random_quote : nil
   end
 
   def send_message(message)
     @bot.msg @channel, message
+  end
+
+  def can_i_say?
+    (rand(20) == 1)? true : false
   end
 end
